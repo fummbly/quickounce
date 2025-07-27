@@ -12,28 +12,35 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts(id, user_id, total_likes, total_comments, created_at, updated_at)
+INSERT INTO posts(id, user_id, total_likes, total_comments, created_at, updated_at, upload_id)
 VALUES(
 	gen_random_uuid(),
 	$1,
 	0,
 	0,
 	NOW(),
-	NOW()
+	NOW(),
+	$2
 )
-RETURNING id, user_id, total_likes, total_comments, created_at, updated_at
+RETURNING id, total_likes, total_comments, created_at, updated_at, upload_id, user_id
 `
 
-func (q *Queries) CreatePost(ctx context.Context, userID uuid.NullUUID) (Post, error) {
-	row := q.db.QueryRowContext(ctx, createPost, userID)
+type CreatePostParams struct {
+	UserID   uuid.UUID
+	UploadID []byte
+}
+
+func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
+	row := q.db.QueryRowContext(ctx, createPost, arg.UserID, arg.UploadID)
 	var i Post
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
 		&i.TotalLikes,
 		&i.TotalComments,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UploadID,
+		&i.UserID,
 	)
 	return i, err
 }

@@ -5,6 +5,7 @@ CREATE TABLE posts(
 	total_comments INT,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
+	upload_id BYTEA,
 	user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 

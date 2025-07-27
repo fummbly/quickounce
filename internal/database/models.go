@@ -11,13 +11,23 @@ import (
 	"github.com/google/uuid"
 )
 
+type Photo struct {
+	ID        uuid.UUID
+	PhotoPath string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	PostID    uuid.UUID
+}
+
 type Post struct {
 	ID            uuid.UUID
-	UserID        uuid.NullUUID
 	TotalLikes    sql.NullInt32
 	TotalComments sql.NullInt32
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	UploadID      []byte
+	UserID        uuid.UUID
 }
 
 type User struct {

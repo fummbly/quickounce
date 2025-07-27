@@ -1,40 +1,60 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/fummbly/quickounce/internal/database"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
+type apiConfig struct {
+	db       *database.Queries
+	platform string
+}
+
 func main() {
+	const filepathRoot = "."
+	const port = "8080"
+
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
-
-	db, err := sql.Open("postgres", dbURL)
-	if err != nil {
-		log.Fatalf("Failed to open database %s\n", err)
+	if dbURL == "" {
+		log.Fatal("DB_URL must be set")
+	}
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		log.Fatal("PLATFORM must be set")
 	}
 
-	dbQueries := database.New(db)
-
-	user, err := dbQueries.CreateUser(context.Background(), database.CreateUserParams{
-		Email:          "test@test.com",
-		HashedPassword: "KJSDLKHJHkdfhaldshf",
-	})
-
+	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatalf("failed to add user: %s\n", err)
+		log.Fatalf("Error opening database: %s\n", err)
+	}
+	dbQueries := database.New(dbConn)
+
+	apiCfg := apiConfig{
+		db:       dbQueries,
+		platform: platform,
 	}
 
-	_, err = dbQueries.CreatePost(context.Background(), uuid.NullUUID{UUID: user.ID, Valid: true})
-	if err != nil {
-		log.Fatalf("Failed to create post: %s\n", err)
+	mux := http.NewServeMux()
+
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
 	}
 
+	mux.Handle("/", http.FileServer(http.Dir(".")))
+
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+	mux.HandleFunc("POST /api/posts", apiCfg.handlerUploadImage)
+
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+
+	log.Printf("Serving on port: %s\n", port)
+	log.Fatal(srv.ListenAndServe())
 }
