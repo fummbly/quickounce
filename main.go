@@ -12,8 +12,9 @@ import (
 )
 
 type apiConfig struct {
-	db       *database.Queries
-	platform string
+	db        *database.Queries
+	platform  string
+	jwtSecret string
 }
 
 func main() {
@@ -29,6 +30,10 @@ func main() {
 	if platform == "" {
 		log.Fatal("PLATFORM must be set")
 	}
+	secret := os.Getenv("SECRET")
+	if secret == "" {
+		log.Fatal("SECRET must be seet")
+	}
 
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -37,8 +42,9 @@ func main() {
 	dbQueries := database.New(dbConn)
 
 	apiCfg := apiConfig{
-		db:       dbQueries,
-		platform: platform,
+		db:        dbQueries,
+		platform:  platform,
+		jwtSecret: secret,
 	}
 
 	mux := http.NewServeMux()
@@ -57,6 +63,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/posts", apiCfg.handlerUploadImage)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 

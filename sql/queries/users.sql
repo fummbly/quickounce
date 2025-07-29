@@ -17,3 +17,8 @@ ORDER BY created_at ASC;
 -- name: GetUserByUsername :one
 SELECT * FROM users
 WHERE username = $1;
+
+-- name: GetUserByEmail :one
+SELEcT * FROM users
+WHERE email = $1;
+

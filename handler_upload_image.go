@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/fummbly/quickounce/internal/auth"
 	"github.com/fummbly/quickounce/internal/database"
 	"github.com/fummbly/quickounce/internal/encrypting"
 	"github.com/fummbly/quickounce/internal/photoproc"
@@ -22,6 +23,18 @@ type Post struct {
 
 func (cfg *apiConfig) handlerUploadImage(w http.ResponseWriter, r *http.Request) {
 
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find JWT", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate JWT", err)
+		return
+	}
+
 	file, fileHeader, err := r.FormFile("photo")
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to get file from post", err)
@@ -32,12 +45,6 @@ func (cfg *apiConfig) handlerUploadImage(w http.ResponseWriter, r *http.Request)
 
 	uploadID := encrypting.Hash([]byte(createdAt))
 	stringUploadID := base64.URLEncoding.EncodeToString(uploadID)
-
-	userID, err := uuid.Parse(r.FormValue("user_id"))
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Failed to parse user id", err)
-		return
-	}
 
 	err = photoproc.CopyPhoto(stringUploadID, file, fileHeader)
 	if err != nil {
