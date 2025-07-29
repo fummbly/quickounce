@@ -48,7 +48,12 @@ func main() {
 		Handler: mux,
 	}
 
-	mux.Handle("/", http.FileServer(http.Dir(".")))
+	mux.HandleFunc("GET /", apiCfg.handlerIndex)
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
+
+	mux.HandleFunc("GET /api/users", apiCfg.handlerUsersGet)
+	mux.HandleFunc("GET /api/users/{username}", apiCfg.handlerGetUser)
 
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/posts", apiCfg.handlerUploadImage)

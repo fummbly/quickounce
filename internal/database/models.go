@@ -5,33 +5,22 @@
 package database
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-type Photo struct {
+type Post struct {
 	ID        uuid.UUID
-	PhotoPath string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	ImageUrl  string
 	UserID    uuid.UUID
-	PostID    uuid.UUID
-}
-
-type Post struct {
-	ID            uuid.UUID
-	TotalLikes    sql.NullInt32
-	TotalComments sql.NullInt32
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	UploadID      []byte
-	UserID        uuid.UUID
 }
 
 type User struct {
 	ID             uuid.UUID
+	Username       string
 	Email          string
 	HashedPassword string
 	CreatedAt      time.Time
