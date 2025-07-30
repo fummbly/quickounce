@@ -11,6 +11,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type Comment struct {
+	ID          uuid.UUID
+	CommentText string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	PostID      uuid.UUID
+	UserID      uuid.UUID
+}
+
 type Post struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
