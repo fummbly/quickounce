@@ -4,6 +4,8 @@ import "net/http"
 
 func (cfg *apiConfig) handlerUsersGet(w http.ResponseWriter, r *http.Request) {
 
+	enableCors(w)
+
 	dbUsers, err := cfg.db.GetUsers(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to fetch users", err)

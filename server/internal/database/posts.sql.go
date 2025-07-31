@@ -51,6 +51,41 @@ func (q *Queries) DeletePost(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getFollowPosts = `-- name: GetFollowPosts :many
+SELECT posts.id, posts.created_at, posts.updated_at, posts.image_url, posts.user_id FROM posts
+JOIN follows ON posts.user_id = follows.follow_id
+WHERE follows.follow_id = $1
+`
+
+func (q *Queries) GetFollowPosts(ctx context.Context, followID uuid.UUID) ([]Post, error) {
+	rows, err := q.db.QueryContext(ctx, getFollowPosts, followID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ImageUrl,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPost = `-- name: GetPost :one
 SELECT id, created_at, updated_at, image_url, user_id FROM posts
 WHERE id = $1

@@ -21,3 +21,10 @@ WHERE id = $1;
 -- name: DeletePost :exec
 DELETE FROM posts
 WHERE id = $1;
+
+
+-- name: GetFollowPosts :many
+SELECT posts.* FROM posts
+JOIN follows ON posts.user_id = follows.follow_id
+WHERE follows.follow_id = $1;
+

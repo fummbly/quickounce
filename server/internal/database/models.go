@@ -20,6 +20,12 @@ type Comment struct {
 	UserID      uuid.UUID
 }
 
+type Follow struct {
+	FollowID   uuid.UUID
+	FolloweeID uuid.UUID
+	CreatedAt  time.Time
+}
+
 type Post struct {
 	ID        uuid.UUID
 	CreatedAt time.Time

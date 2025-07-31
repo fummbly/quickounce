@@ -22,6 +22,8 @@ profile.cov
 server/uploads/
 server/tests/
 
+webapp/node_modules
+
 # Go workspace file
 go.work
 go.work.sum

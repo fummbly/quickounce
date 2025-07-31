@@ -58,16 +58,26 @@ func main() {
 	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
 	mux.HandleFunc("GET /api/users", apiCfg.handlerUsersGet)
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	mux.HandleFunc("GET /api/users/{username}", apiCfg.handlerGetUser)
 
-	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+
 	mux.HandleFunc("POST /api/posts", apiCfg.handlerUploadImage)
 	mux.HandleFunc("DELETE /api/post/{postID}", apiCfg.handlerDeletePost)
-	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+
+	mux.HandleFunc("POST /api/follows", apiCfg.handleFollow)
+
 	mux.HandleFunc("POST /api/comments", apiCfg.handlerCommentCreate)
 
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
+}
+
+func enableCors(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 }
