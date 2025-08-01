@@ -11,6 +11,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// server state object for holding
+// information needed between functions
 type apiConfig struct {
 	db        *database.Queries
 	platform  string
@@ -19,9 +21,12 @@ type apiConfig struct {
 
 func main() {
 	const filepathRoot = "."
+	// port for server to run on
 	const port = "8080"
 
+	// getting enviroment variables
 	godotenv.Load()
+	// checking that each is setup
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
 		log.Fatal("DB_URL must be set")
@@ -35,6 +40,7 @@ func main() {
 		log.Fatal("SECRET must be seet")
 	}
 
+	// making connection to database
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database: %s\n", err)
@@ -47,6 +53,7 @@ func main() {
 		jwtSecret: secret,
 	}
 
+	// starting mutex server
 	mux := http.NewServeMux()
 
 	srv := &http.Server{
@@ -54,30 +61,49 @@ func main() {
 		Handler: mux,
 	}
 
+	// redirect routes for content
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
-	mux.HandleFunc("GET /api/users", apiCfg.handlerUsersGet)
-	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
-	mux.HandleFunc("GET /api/users/{username}", apiCfg.handlerGetUser)
+	// user api routes
+	mux.Handle("GET /api/users", apiCfg.middlewareCors(apiCfg.handlerUsersGet))
+	mux.Handle("POST /api/users", apiCfg.middlewareCors(apiCfg.handlerUsersCreate))
+	mux.Handle("GET /api/users/{username}", apiCfg.middlewareCors(apiCfg.handlerGetUser))
 
-	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+	// user login route
+	mux.Handle("POST /api/login", apiCfg.middlewareCors(apiCfg.handlerLogin))
 
-	mux.HandleFunc("POST /api/posts", apiCfg.handlerUploadImage)
-	mux.HandleFunc("DELETE /api/post/{postID}", apiCfg.handlerDeletePost)
+	// api post routes
+	mux.Handle("POST /api/posts", apiCfg.middlewareCors(apiCfg.handlerUploadImage))
+	mux.Handle("DELETE /api/post/{postID}", apiCfg.middlewareCors(apiCfg.handlerDeletePost))
 
-	mux.HandleFunc("POST /api/follows", apiCfg.handleFollow)
+	// api follow routes
+	mux.Handle("POST /api/follows", apiCfg.middlewareCors(apiCfg.handleFollow))
 
-	mux.HandleFunc("POST /api/comments", apiCfg.handlerCommentCreate)
+	// api comment routes
+	mux.Handle("POST /api/comments", apiCfg.middlewareCors(apiCfg.handlerCommentCreate))
 
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	// admin route to reset databases
+	mux.Handle("POST /admin/reset", apiCfg.middlewareCors(apiCfg.handlerReset))
 
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
 }
 
+// CORS enabler for development setup
 func enableCors(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+}
+
+// CORS middleware to pass access control to handlers
+func (cfg *apiConfig) middlewareCors(next http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// check if the server is in a dev enviroment
+		if cfg.platform == "dev" {
+			enableCors(w)
+		}
+		next.ServeHTTP(w, r)
+	})
 }

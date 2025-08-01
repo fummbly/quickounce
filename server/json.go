@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// function to respond with an error
 func respondWithError(w http.ResponseWriter, code int, msg string, err error) {
 	if err != nil {
 		log.Println(err)
@@ -21,6 +22,7 @@ func respondWithError(w http.ResponseWriter, code int, msg string, err error) {
 	})
 }
 
+// function for responding with json object
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-type", "application/json")
 	dat, err := json.Marshal(payload)

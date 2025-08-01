@@ -22,6 +22,7 @@ const (
 
 var ErrNoAuthHeaderIncluded = errors.New("no auth header included")
 
+// hashing password function
 func HashPassword(password string) (string, error) {
 	data, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -31,13 +32,16 @@ func HashPassword(password string) (string, error) {
 	return string(data), nil
 }
 
+// checking hashed password
 func CheckPassordHash(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
+	// creating the signing key
 	signingKey := []byte(tokenSecret)
 
+	// creating token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		Issuer:    string(TokenTypeAccess),
 		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),

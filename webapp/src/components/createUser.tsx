@@ -17,6 +17,8 @@ function CreateUser() {
 			console.log("User Created")
 		}
 
+		window.location.reload()
+
 	}
 
 	return (
