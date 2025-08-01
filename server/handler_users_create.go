@@ -19,6 +19,9 @@ type User struct {
 }
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(w)
+
 	type parameters struct {
 		Email    string `json:"email"`
 		Username string `json:"username"`
