@@ -33,44 +33,44 @@ Enter the server directory ```cd server/```
 
 Create a database for quickounce:
 
-1. Enter the ```psql``` shell:
+- Enter the ```psql``` shell:
 
-- Mac: ```psql postgres```
-- Linux: ```sudo -u postgres psql```
+  - Mac: ```psql postgres```
+  - Linux: ```sudo -u postgres psql```
 
-You should see a propmpt
-```postgres=#```
+  You should see a propmpt
+  ```postgres=#```
 
-2. Create a new database:
+- Create a new database:
 
-```CREATE DATABASE quickounce;```
+  ```CREATE DATABASE quickounce;```
 
-3. Connect to the new database:
+- Connect to the new database:
 
-```\c quickounce```
+  ```\c quickounce```
 
-You should see a new prompt
-```quickounce=#```
+  You should see a new prompt
+  ```quickounce=#```
 
-Create your ```.env``` file:
+  Create your ```.env``` file:
 
-```touch .env```
+  ```touch .env```
 
-Edit the env file to have
-```DB_URL={YOUR URL}```
-```PLATFORM=dev```
-```SECRET={YOUR SECRET}```
+  Edit the env file to have
+  ```DB_URL={YOUR URL}```
+  ```PLATFORM=dev```
+  ```SECRET={YOUR SECRET}```
 
-Where ```DB_URL``` is your postgres url
+  Where ```DB_URL``` is your postgres url
 
-- Mac: ```postgres://{username}@localhost:5432/quickounce```
-- Linux: ```postgres://postgres:postgres@localhost5432/quickounce```
+  - Mac: ```postgres://{username}@localhost:5432/quickounce```
+  - Linux: ```postgres://postgres:postgres@localhost5432/quickounce```
 
-And ```SECRET``` is your secret
+  And ```SECRET``` is your secret
 
-You can generate one with ```openssl rand -base64 64```
+  You can generate one with ```openssl rand -base64 64```
 
-Now you can run the backend api server with ```go run .```
+  Now you can run the backend api server with ```go run .```
 
 ### Webapp
 
