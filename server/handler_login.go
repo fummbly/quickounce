@@ -19,8 +19,9 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	// defining response object
 	type response struct {
 		User
-		Token        string `json:"token"`
-		RefreshToken string `json:"refresh_token"`
+		Token        string    `json:"token"`
+		RefreshToken string    `json:"refresh_token"`
+		ExpiresAt    time.Time `json:"expires_at"`
 	}
 
 	// setting up json decoder and decoding request body
@@ -60,10 +61,12 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	// creating a long term refresh token for the user
 	refreshToken := auth.MakeRefreshToken()
 
+	expiresAt := time.Now().UTC().Add(time.Hour * 24 * 60)
+
 	_, err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		UserID:    user.ID,
 		Token:     refreshToken,
-		ExpiresAt: time.Now().UTC().Add(time.Hour * 24 * 60),
+		ExpiresAt: expiresAt,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to create refresh token", err)
@@ -81,5 +84,6 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		},
 		Token:        accessToken,
 		RefreshToken: refreshToken,
+		ExpiresAt:    expiresAt,
 	})
 }
