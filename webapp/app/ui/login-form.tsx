@@ -7,7 +7,7 @@ export default function LoginForm() {
 		event.preventDefault()
 
 		const formData = new FormData(event.currentTarget)
-		var object = Object.fromEntries(formData.entries());
+		const object = Object.fromEntries(formData.entries());
 		const response = await fetch('http://localhost:8080/api/login', {
 			method: 'POST',
 			body: JSON.stringify(object),
