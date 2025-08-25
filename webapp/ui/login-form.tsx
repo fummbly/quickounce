@@ -1,5 +1,6 @@
 'use client'
 import { FormEvent } from "react"
+import { createSession } from "@/lib/session";
 
 export default function LoginForm() {
 
@@ -14,8 +15,8 @@ export default function LoginForm() {
 		})
 
 		const data = await response.json()
-
-		console.log(data)
+		const expires = Date.parse(data['expires_at'])
+		createSession(data['token'], data['refresh_token'], expires)
 	}
 
 	return (

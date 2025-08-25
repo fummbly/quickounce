@@ -61,6 +61,10 @@ func (cfg *apiConfig) handlerUploadImage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+
 	respondWithJSON(w, http.StatusOK, Post{
 		UserID:    post.UserID,
 		ID:        post.ID,
@@ -68,5 +72,12 @@ func (cfg *apiConfig) handlerUploadImage(w http.ResponseWriter, r *http.Request)
 		UpdatedAt: post.UpdatedAt,
 		ImageUrl:  post.ImageUrl,
 	})
+}
 
+func (cfg *apiConfig) handlerPostsOption(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.WriteHeader(http.StatusNoContent)
 }

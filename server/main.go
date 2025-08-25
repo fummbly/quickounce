@@ -72,9 +72,11 @@ func main() {
 
 	// user login route
 	mux.Handle("POST /api/login", apiCfg.middlewareCors(apiCfg.handlerLogin))
+	mux.Handle("GET /api/refresh", apiCfg.middlewareCors(apiCfg.handlerRefresh))
 
 	// api post routes
 	mux.Handle("POST /api/posts", apiCfg.middlewareCors(apiCfg.handlerUploadImage))
+	mux.HandleFunc("OPTIONS /api/posts", apiCfg.handlerPostsOption)
 	mux.Handle("DELETE /api/post/{postID}", apiCfg.middlewareCors(apiCfg.handlerDeletePost))
 
 	// api follow routes
@@ -94,7 +96,7 @@ func main() {
 func enableCors(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 }
 
 // CORS middleware to pass access control to handlers
