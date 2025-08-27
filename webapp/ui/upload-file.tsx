@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session"
 
 export default function UploadFile() {
 
+
 	const [backgroundImage, setBackgroundImage] = useState("")
 
 	function onChange(e: ChangeEvent<HTMLInputElement>) {
