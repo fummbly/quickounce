@@ -1,6 +1,7 @@
 'use client'
 import { FormEvent } from "react"
-import { createSession } from "@/lib/session";
+import { createSession, login } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 export default function LoginForm() {
 
@@ -8,15 +9,15 @@ export default function LoginForm() {
 		event.preventDefault()
 
 		const formData = new FormData(event.currentTarget)
-		const object = Object.fromEntries(formData.entries());
-		const response = await fetch('http://localhost:8080/api/login', {
-			method: 'POST',
-			body: JSON.stringify(object),
-		})
 
-		const data = await response.json()
-		const expires = Date.parse(data['expires_at'])
-		createSession(data['token'], data['refresh_token'], expires)
+		const success = await login(formData)
+
+		if (!success) {
+			return "Something went wrong"
+		}
+
+		redirect("/")
+
 	}
 
 	return (

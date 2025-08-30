@@ -46,6 +46,29 @@ export async function getSession() {
 
 
 	return AccessToken
+}
 
+export async function login(formData: FormData) {
+	const object = Object.fromEntries(formData.entries());
+	try {
+		const response = await fetch('http://localhost:8080/api/login', {
+			method: 'POST',
+			body: JSON.stringify(object),
+		})
+		const data = await response.json()
+		if (!response.ok) {
+			throw Error(`Failed to login: ${data['error']}`)
+		}
+		const expires = Date.parse(data['expires_at'])
+		await createSession(data['token'], data['refresh_token'], expires)
 
+		return true
+
+	} catch (error) {
+
+		console.log(error)
+
+		return false
+
+	}
 }

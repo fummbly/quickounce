@@ -13,10 +13,13 @@ export default async function Feed() {
 	}
 
 	return (
-		<div className='flex flex-col w-full m-6'>
-			{users?.map((user) => (
-				< UserPreview key={user.id} params={{ user }} />
-			))}
+		<div className='bg-gray-800 flex'>
+			<h2>Users</h2>
+			<div className='flex flex-col w-full m-6 border-2 border-gray-400'>
+				{users?.map((user) => (
+					< UserPreview key={user.id} params={{ user }} />
+				))}
+			</div>
 		</div>
 	)
 }
