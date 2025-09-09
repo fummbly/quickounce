@@ -1,11 +1,18 @@
 'use client'
 import { ChangeEvent, FormEvent, useState } from "react"
 import Image from "next/image"
-import { getSession } from "@/lib/session"
+import { createPost } from "@/lib/posts"
+import { redirect } from "next/navigation"
 
-export default function UploadFile() {
+interface UploadParams {
+	params: {
+		token: string
+	}
 
+}
 
+export default function UploadFile({ params }: UploadParams) {
+	const { token } = params
 	const [backgroundImage, setBackgroundImage] = useState("")
 
 	function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -22,24 +29,15 @@ export default function UploadFile() {
 
 		const formData = new FormData(event.currentTarget)
 
-		const token = await getSession()
-		console.log(token)
+		const success = await createPost(token, formData)
 
-		try {
-			const response = await fetch("http://localhost:8080/api/posts", {
-				method: 'POST',
-				headers: {
-					"Authorization": "Bearer " + token,
-				},
-				body: formData,
-			})
-
-			if (response.ok) {
-				console.log("Photo Successfully uploaded")
-			}
-		} catch (e) {
-			console.log(e)
+		if (!success) {
+			return "Something went wrong"
 		}
+
+		redirect("/")
+
+
 	}
 
 	return (
